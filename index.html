@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohammad Johirul - Production Register</title>
+    <!-- FontAwesome icons & XLSX Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-color: #2d3748;
+            --primary-color: #3182ce;
+            --primary-hover: #2b6cb0;
+            --table-header-bg: linear-gradient(135deg, #3182ce, #2b6cb0);
+            --table-header-text: #ffffff;
+            --sticky-col-bg: #ebf8ff;
+            --border-color: #cbd5e0;
+            --accent-money: #276749;
+            --highlight-day: #fefcbf;
+        }
+
+        /* থিমসমূহ */
+        body.theme-forest {
+            --bg-color: #f0fff4;
+            --primary-color: #2f855a;
+            --primary-hover: #22543d;
+            --table-header-bg: linear-gradient(135deg, #2f855a, #22543d);
+            --sticky-col-bg: #e6fffa;
+        }
+        body.theme-purple {
+            --bg-color: #faf5ff;
+            --primary-color: #6b46c1;
+            --primary-hover: #44337a;
+            --table-header-bg: linear-gradient(135deg, #6b46c1, #44337a);
+            --sticky-col-bg: #f3e8ff;
+        }
+        body.theme-dark {
+            --bg-color: #1a202c;
+            --card-bg: #2d3748;
+            --text-color: #e2e8f0;
+            --primary-color: #4a5568;
+            --primary-hover: #718096;
+            --table-header-bg: linear-gradient(135deg, #2d3748, #1a202c);
+            --sticky-col-bg: #4a5568;
+            --border-color: #4a5568;
+            --highlight-day: #744210;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: var(--bg-color); padding: 8px; color: var(--text-color); transition: all 0.3s ease; }
+        
+        /* স্প্ল্যাশ স্ক্রিন - রিয়েল প্রকৃতি, পাহাড়, সাগর ও আকাশের পিকচার ওয়ালপেপার */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #134e5e;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+            z-index: 9999; text-align: center; padding: 35px 20px; transition: opacity 0.8s ease;
+        }
+
+        /* ছবির ওপর লেখাগুলো যেন একদম স্পষ্ট বোঝা যায় তার জন্য হালকা ডার্ক শেড */
+        #splash-screen::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.6) 100%);
+            z-index: 1; pointer-events: none;
+        }
+
+        /* ছোট ও সুন্দর ওয়ালপেপার চেঞ্জ আইকন বাটন */
+        .wallpaper-icon-btn {
+            position: absolute; top: 16px; right: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #f6e05e; width: 40px; height: 40px; border-radius: 50%;
+            font-size: 15px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .wallpaper-icon-btn:hover { background: rgba(0, 0, 0, 0.8); transform: scale(1.1); }
+
+        /* ১. সবার ওপরে: স্টাইলিশ প্রিমিয়াম ঘড়ি ও বিসমিল্লাহ */
+        .splash-top-section {
+            display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 5px;
+            position: relative; z-index: 5;
+        }
+        .live-clock-badge {
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 26px; border-radius: 40px;
+            display: flex; flex-direction: column; align-items: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.45);
+        }
+        .clock-time { 
+            font-size: 22px; font-weight: 900; color: #68d391; letter-spacing: 2px; 
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        }
+        .clock-date { 
+            font-size: 12px; font-weight: 600; color: #f7fafc; margin-top: 3px; letter-spacing: 0.5px;
+        }
+        .bismillah-text { 
+            font-size: 24px; font-weight: bold; color: #f6e05e; margin-top: 12px; 
+            text-shadow: 0 3px 12px rgba(0,0,0,0.95);
+        }
+
+        /* ২. মাঝখানের অংশ: বক্স ছাড়া ন্যাচারাল ওয়েলকাম টেক্সট */
+        .splash-middle-section {
+            display: flex; flex-direction: column; align-items: center; width: 100%;
+            position: relative; z-index: 5;
+        }
+
+        .greeting-text {
+            font-size: 15px; font-weight: 700; color: #bee3f8;
+            margin-bottom: 18px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.95);
+            letter-spacing: 0.5px;
+        }
+
+        /* কোনো বক্স বা অ্যানিমেশন ছাড়া ওয়ালপেপারের সাথে মানানসই ক্লিন টেক্সট */
+        .natural-welcome-box {
+            display: flex; flex-direction: column; align-items: center; gap: 3px; margin-bottom: 28px;
+        }
+        .welcome-title-1 { font-size: 30px; font-weight: 900; letter-spacing: 4px; color: #ffffff; text-shadow: 0 3px 15px rgba(0,0,0,0.95); }
+        .welcome-title-2 { font-size: 17px; font-weight: 700; color: #e2e8f0; font-style: italic; text-shadow: 0 2px 10px rgba(0,0,0,0.95); }
+        .welcome-title-3 { font-size: 36px; font-weight: 900; letter-spacing: 3px; color: #68d391; text-shadow: 0 3px 16px rgba(0,0,0,0.95); }
+        .welcome-title-4 { font-size: 42px; font-weight: 900; letter-spacing: 3.5px; color: #f6e05e; text-shadow: 0 4px 20px rgba(0,0,0,0.95); }
+        
+        .btn-enter-app {
+            background: linear-gradient(135deg, #48bb78, #2f855a);
+            color: white; border: 1px solid rgba(255,255,255,0.3); padding: 14px 42px; font-size: 18px; font-weight: bold;
+            border-radius: 35px; cursor: pointer; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            display: flex; align-items: center; gap: 10px;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .btn-enter-app:hover { transform: scale(1.05); background: linear-gradient(135deg, #38a169, #22543d); }
+        .btn-enter-app:active { transform: scale(0.96); }
+
+        /* ৩. সবার নিচের অংশ: ডেভেলপার ব্যাজ */
+        .splash-bottom-section {
+            width: 100%; display: flex; justify-content: center; margin-bottom: 5px;
+            position: relative; z-index: 5;
+        }
+        .dev-tag {
+            font-size: 13px; font-weight: 700; color: #fefcbf;
+            background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px);
+            padding: 7px 20px; border-radius: 25px; border: 1px solid rgba(236, 201, 75, 0.5);
+            display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .dev-tag i.fa-crown { color: #ecc94b; }
+
+        /* পিন লক স্ক্রিন */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9000; padding: 20px;
+        }
+        .lock-box {
+            background: var(--card-bg); padding: 30px; border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); text-align: center; max-width: 350px; width: 100%; color: var(--text-color);
+        }
+        .lock-box h3 { margin-bottom: 10px; color: var(--primary-color); font-size: 18px; }
+        .lock-box p { font-size: 13px; color: #718096; margin-bottom: 15px; }
+        .pin-input {
+            width: 100%; padding: 12px; font-size: 24px; text-align: center; letter-spacing: 12px;
+            border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 15px; outline: none; background: var(--bg-color); color: var(--text-color);
+        }
+        .btn-unlock {
+            width: 100%; padding: 12px; background: var(--primary-color); color: white;
+            border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
+        }
+
+        /* হেডার বার */
+        .header-container {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+            background: var(--card-bg); padding: 10px 15px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        .header-title { font-size: 18px; font-weight: bold; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .verified-icon { color: #3182ce; font-size: 16px; }
+        .settings-btn {
+            background: var(--primary-color); color: white; border: none; padding: 8px 14px;
+            border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .settings-btn:hover { opacity: 0.9; }
+
+        /* ইনফো সেকশন: ছোট ও দুই পাশে সাজানো (2 Columns Grid Layout) */
+        .info-container {
+            background: var(--card-bg); padding: 12px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            margin-bottom: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+        }
+        .info-group { display: flex; flex-direction: column; }
+        .info-group label { font-size: 11px; font-weight: bold; margin-bottom: 3px; color: var(--text-color); opacity: 0.85; }
+        .info-group input, .info-group select {
+            padding: 7px 10px; border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 13px; background: var(--bg-color); color: var(--text-color);
+            transition: border-color 0.2s;
+        }
+        .info-group input:focus, .info-group select:focus { border-color: var(--primary-color); outline: none; background: #fff; }
+
+        /* স্টাইলিশ স্যালারি শিট ও প্রিমিয়াম কালারফুল ঘর */
+        .table-container {
+            background: var(--card-bg); padding: 10px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            overflow: auto; max-height: 65vh;
+        }
+        table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 3200px; }
+        th, td { border: 1px solid var(--border-color); padding: 5px 3px; text-align: center; font-size: 13px; background: var(--card-bg); }
+        
+        th.corner-header {
+            background: var(--table-header-bg); color: var(--table-header-text);
+            position: sticky; top: 0; left: 0; z-index: 10; min-width: 75px; font-size: 13px; padding: 10px;
+            border-top-left-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        th.style-header-cell {
+            background: var(--table-header-bg); color: var(--table-header-text);
+            position: sticky; top: 0; z-index: 5; min-width: 105px; padding: 8px 4px;
+        }
+        .style-badge { font-size: 9px; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 10px; display: inline-block; margin-bottom: 3px; font-weight: bold; }
+        .style-header-input {
+            width: 100%; padding: 6px 4px; border: 1px solid rgba(255,255,255,0.4); border-radius: 5px;
+            text-align: center; font-size: 12px; font-weight: bold; background-color: rgba(255,255,255,0.9); color: #1a365d;
+        }
+
+        .date-col {
+            background-color: var(--sticky-col-bg); font-weight: bold; min-width: 75px;
+            position: sticky; left: 0; z-index: 4; font-size: 13px; color: var(--primary-color);
+        }
+        .today-row td { background-color: var(--highlight-day) !important; font-weight: bold; }
+        .total-col { font-weight: bold; font-size: 13px; }
+        
+        /* স্যালারি শিটের ঘরগুলোর কালারফুল ও প্রিমিয়াম ডিজাইন */
+        input.table-input {
+            width: 100%; padding: 8px 4px; border: 1px solid #e2e8f0; border-radius: 6px;
+            text-align: center; font-size: 13px; font-weight: 600; background: #fafbfc; color: #2d3748;
+            transition: all 0.15s ease;
+        }
+        input.table-input:focus {
+            outline: none; border-color: var(--primary-color); background-color: #ebf8ff;
+            box-shadow: 0 0 8px rgba(49, 130, 206, 0.4); transform: scale(1.04); z-index: 3; position: relative;
+        }
+        input.table-input:not(:placeholder-shown) { background-color: #f0fff4; color: #22543d; font-weight: 700; border-color: #9ae6b4; }
+
+        .rate-input {
+            width: 100%; padding: 8px 4px; border: 2px solid #319795; border-radius: 6px;
+            text-align: center; font-size: 13px; font-weight: bold; background-color: #e6fffa; color: #234e52;
+        }
+
+        /* সামারি কার্ড */
+        .summary-container { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+        .grand-total-card {
+            background: var(--primary-color); color: white; padding: 14px 18px;
+            border-radius: 12px; text-align: center; min-width: 220px; box-shadow: 0 5px 12px rgba(0,0,0,0.1); flex: 1; max-width: 300px;
+        }
+        .grand-total-card.money { background: var(--accent-money); }
+        .grand-total-card.bonus { background: #b7791f; }
+        .grand-total-card span { font-size: 12px; display: block; margin-bottom: 4px; opacity: 0.95; }
+        .grand-total-card h2 { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+        
+        .bonus-input-group { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 3px; }
+        .bonus-input-group input { width: 50px; text-align: center; padding: 3px; border-radius: 4px; border: none; font-weight: bold; font-size: 13px; }
+
+        /* সেটিং মোডাল */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--card-bg); color: var(--text-color); width: 90%; max-width: 420px;
+            border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 14px; }
+        .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-color); }
+        .setting-item { margin-bottom: 14px; }
+        .setting-item label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; }
+        .setting-item select { width: 100%; padding: 9px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); }
+
+        .modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        .btn-action { padding: 11px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; font-size: 13px; transition: opacity 0.2s; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-print { background: #3182ce; }
+        .btn-excel { background: #38a169; }
+        .btn-backup { background: #805ad5; }
+        .btn-restore { background: #dd6b20; }
+        .btn-reset { background: #e53e3e; }
+
+        @media print {
+            body { background: white; color: black; padding: 0; }
+            #splash-screen, #lock-screen, .settings-btn, .modal-overlay { display: none !important; }
+            .table-container, .info-container { box-shadow: none; border: 1px solid #000; max-height: none; }
+            th { background-image: none !important; background-color: #ddd !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="theme-blue">
+
+    <!-- স্প্ল্যাশ স্ক্রিন (রিয়েল প্রকৃতি, পাহাড়, সাগর ও আকাশের পিকচার ওয়ালপেপার) -->
+    <div id="splash-screen">
+        <!-- ছোট ওয়ালপেপার চেঞ্জ আইকন বাটন -->
+        <button class="wallpaper-icon-btn" onclick="changeRealWallpaper()" title="ওয়ালপেপার পরিবর্তন করুন">
+            <i class="fa-solid fa-image"></i>
+        </button>
+
+        <div class="splash-top-section">
+            <div class="live-clock-badge">
+                <div class="clock-time" id="live-clock">12:00:00 PM</div>
+                <div class="clock-date" id="live-date">Loading date...</div>
+            </div>
+            <div class="bismillah-text">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+        </div>
+
+        <div class="splash-middle-section">
+            <div class="greeting-text" id="time-greeting">স্বাগতম, মোহাম্মদ জহিরুল</div>
+            
+            <!-- বক্স বা অ্যানিমেশন ছাড়া ন্যাচারাল ওয়েলকাম টেক্সট -->
+            <div class="natural-welcome-box">
+                <div class="welcome-title-1">WELCOME</div>
+                <div class="welcome-title-2">To</div>
+                <div class="welcome-title-3">LINKING</div>
+                <div class="welcome-title-4">SALARY</div>
+            </div>
+            
+            <button class="btn-enter-app" onclick="enterAppFromSplash()">
+                <span>প্রবেশ করুন</span> <i class="fa-solid fa-circle-arrow-right"></i>
+            </button>
+        </div>
+
+        <div class="splash-bottom-section">
+            <div class="dev-tag">
+                <i class="fa-solid fa-crown"></i> Developer: Mohammad Johirul <i class="fa-solid fa-circle-check" style="color: #63b3ed;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- সিক্রেট পিন লক স্ক্রিন (পিন: 1342) -->
+    <div id="lock-screen">
+        <div class="lock-box">
+            <i class="fa-solid fa-shield-halved" style="font-size: 38px; color: var(--primary-color); margin-bottom: 10px;"></i>
+            <h3>সিকিউরিটি পিন কোড দিন</h3>
+            <p>অ্যাপটি প্রথমবার আনলক করতে সিক্রেট পিন দিন</p>
+            <input type="password" id="pin-entry" class="pin-input" maxlength="4" placeholder="••••">
+            <button class="btn-unlock" onclick="checkAntiTheftPin()">আনলক করুন</button>
+        </div>
+    </div>
+
+    <!-- হেডার বার -->
+    <div class="header-container">
+        <div class="header-title" id="txt-app-title">
+            Mohammad Johirul <i class="fa-solid fa-circle-check verified-icon"></i>
+        </div>
+        <button class="settings-btn" onclick="openSettings()"><i class="fa-solid fa-gear"></i> <span id="txt-settings-btn">সেটিং</span></button>
+    </div>
+
+    <!-- ইনফরমেশন সেকশন (ছোট ও দুই পাশে সাজানো) -->
+    <div class="info-container">
+        <div class="info-group">
+            <label id="lbl-name">নাম (Name):</label>
+            <input type="text" id="user-name" placeholder="নাম লিখুন" class="global-save">
+        </div>
+        <div class="info-group">
+            <label id="lbl-id">আইডি নাম্বার (ID):</label>
+            <input type="text" id="user-id" placeholder="আইডি লিখুন" class="global-save">
+        </div>
+        <div class="info-group">
+            <label id="lbl-section">সেকশন (Section):</label>
+            <input type="text" id="user-section" placeholder="সেকশন লিখুন" class="global-save">
+        </div>
+        <div class="info-group">
+            <label id="lbl-month">মাসের নাম (Month):</label>
+            <select id="user-month" onchange="loadMonthData()">
+                <option value="Jan">জানুয়ারি (January)</option>
+                <option value="Feb">ফেব্রুয়ারি (February)</option>
+                <option value="Mar">মার্চ (March)</option>
+                <option value="Apr">এপ্রিল (April)</option>
+                <option value="May">মে (May)</option>
+                <option value="Jun">জুন (June)</option>
+                <option value="Jul">জুলাই (July)</option>
+                <option value="Aug">আগস্ট (August)</option>
+                <option value="Sep">সেপ্টেম্বর (September)</option>
+                <option value="Oct">অক্টোবর (October)</option>
+                <option value="Nov">নভেম্বর (November)</option>
+                <option value="Dec">ডিসেম্বর (December)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ৩০টি স্টাইলের টেবিল -->
+    <div class="table-container" id="printable-area">
+        <table>
+            <thead>
+                <tr id="table-header-row">
+                    <th class="corner-header" id="lbl-date">তারিখ</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+            <tfoot>
+                <tr id="total-pcs-row" style="background-color: #ebf8ff; font-weight: bold;">
+                    <td class="date-col" id="lbl-total-pcs" style="background-color: #bee3f8;">মোট পিস</td>
+                </tr>
+                <tr id="rate-row" style="background-color: #e6fffa;">
+                    <td class="date-col" id="lbl-rate" style="background-color: #b2f5ea; color: #234e52;">রেট (৳)</td>
+                </tr>
+                <tr id="total-money-row" style="background-color: #f0fff4; font-weight: bold;">
+                    <td class="date-col" id="lbl-total-money" style="background-color: #c6f6d5; color: #22543d;">মোট টাকা (৳)</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- সামারি কার্ড -->
+    <div class="summary-container">
+        <div class="grand-total-card">
+            <span id="lbl-card-pcs">এই মাসের সর্বমোট প্রোডাকশন:</span>
+            <h2 id="grand-total-pcs">0 পিস</h2>
+        </div>
+        <div class="grand-total-card money">
+            <span id="lbl-card-money">এই মাসের সর্বমোট বিল (মূল):</span>
+            <h2 id="grand-total-money">৳ 0.00</h2>
+        </div>
+        <div class="grand-total-card bonus">
+            <div class="bonus-input-group">
+                <span id="lbl-card-bonus">সর্বমোট প্রাপ্য (+</span>
+                <input type="number" id="bonus-percent" value="28" oninput="calculateTotals()" class="global-save">%):
+            </div>
+            <h2 id="grand-total-bonus">৳ 0.00</h2>
+        </div>
+    </div>
+
+    <!-- সেটিং মোডাল -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="txt-modal-title" style="font-weight: bold;"><i class="fa-solid fa-sliders"></i> সেটিং প্যানেল</div>
+                <button class="close-btn" onclick="closeSettings()">&times;</button>
+            </div>
+            
+            <div class="setting-item">
+                <label id="lbl-theme">থিম কালার (Theme):</label>
+                <select id="theme-select" onchange="changeTheme(this.value)">
+                    <option value="blue">ক্লাসিক ব্লু (Classic Blue)</option>
+                    <option value="forest">ফরেস্ট গ্রীন (Forest Green)</option>
+                    <option value="purple">পার্পল (Purple)</option>
+                    <option value="dark">ডার্ক মোড (Dark Mode)</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <label id="lbl-lang">ভাষা (Language):</label>
+                <select id="lang-select" onchange="changeLanguage(this.value)">
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-action btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> <span id="btn-txt-print">প্রিন্ট / PDF সেভ করুন</span></button>
+                <button class="btn-action btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> <span id="btn-txt-excel">এক্সেল ফাইল ডাউনলোড (Excel)</span></button>
+                <button class="btn-action btn-backup" onclick="backupData()"><i class="fa-solid fa-download"></i> <span>ডাটা সেভ / ব্যাকআপ (Backup)</span></button>
+                <button class="btn-action btn-restore" onclick="document.getElementById('restore-file').click()"><i class="fa-solid fa-upload"></i> <span>ডাটা রিস্টোর (Restore)</span></button>
+                <input type="file" id="restore-file" style="display:none;" onchange="restoreData(event)">
+                <button class="btn-action btn-reset" onclick="clearCurrentMonthData()"><i class="fa-solid fa-trash"></i> <span id="btn-txt-reset">শুধু এই মাসের ডাটা মুছুন</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ========================================================
+           ১. রিয়েল প্রকৃতি, পাহাড়, সাগর ও আকাশের পিকচার ওয়ালপেপার
+           ======================================================== */
+        const realNatureWallpapers = [
+            // ১. সবুজ পাহাড়, গাছপালা ও নীল আকাশ
+            "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80')",
+            // ২. সমুদ্র সৈকত, ঢেউ ও স্বচ্ছ আকাশ
+            "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80')",
+            // ৩. সবুজ বনানী, পাহাড় ও মেঘলা আকাশ
+            "url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80')",
+            // ৪. পাহাড়ি লেক ও সূর্যাস্তের আকাশ
+            "url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80')"
+        ];
+        let currentWpIndex = parseInt(localStorage.getItem('real_nature_wp_idx')) || 0;
+
+        function applyRealWallpaper(idx) {
+            const splash = document.getElementById('splash-screen');
+            splash.style.backgroundImage = realNatureWallpapers[idx];
+        }
+        applyRealWallpaper(currentWpIndex);
+
+        function changeRealWallpaper() {
+            playClickSound();
+            currentWpIndex = (currentWpIndex + 1) % realNatureWallpapers.length;
+            localStorage.setItem('real_nature_wp_idx', currentWpIndex);
+            applyRealWallpaper(currentWpIndex);
+        }
+
+        /* ========================================================
+           ২. লাইভ ঘড়ি ও সময় অনুযায়ী শুভেচ্ছা
+           ======================================================== */
+        let currentGreetingVoiceText = "শুভ সকাল";
+
+        function updateSplashClockAndGreeting() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            document.getElementById('live-clock').innerText = timeStr;
+
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('live-date').innerText = now.toLocaleDateString('en-US', dateOptions);
+
+            const hr = now.getHours();
+            let greeting = "শুভ সকাল, মোহাম্মদ জহিরুল ☀️";
+            currentGreetingVoiceText = "শুভ সকাল";
+
+            if (hr >= 12 && hr < 16) {
+                greeting = "শুভ দুপুর, মোহাম্মদ জহিরুল 🌤️";
+                currentGreetingVoiceText = "শুভ দুপুর";
+            } else if (hr >= 16 && hr < 19) {
+                greeting = "শুভ বিকেল, মোহাম্মদ জহিরুল 🌅";
+                currentGreetingVoiceText = "শুভ বিকেল";
+            } else if (hr >= 19 || hr < 5) {
+                greeting = "শুভ রাত্রি, মোহাম্মদ জহিরুল 🌙";
+                currentGreetingVoiceText = "শুভ রাত্রি";
+            }
+            
+            document.getElementById('time-greeting').innerText = greeting;
+        }
+        setInterval(updateSplashClockAndGreeting, 1000);
+        updateSplashClockAndGreeting();
+
+        /* ========================================================
+           ৩. স্মার্ট ভয়েস ওয়েলকাম স্পিচ ফাংশন (একদম হালকা ও ফাস্ট)
+           ======================================================== */
+        function speakWelcomeMessage() {
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel(); // আগের কোনো ভয়েস চললে থামিয়ে দেবে
+                    const message = `${currentGreetingVoiceText}, মোহাম্মদ জহিরুল। ওয়েলকাম টু লিংকিং স্যালারিতে আপনাকে স্বাগতম!`;
+                    const utterance = new SpeechSynthesisUtterance(message);
+                    utterance.lang = 'bn-BD'; // বাংলা ভয়েস প্রাধান্য দেবে
+                    utterance.rate = 0.95;    // স্বাভাবিক ও স্পষ্ট গতি
+                    utterance.pitch = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                }
+            } catch (e) {}
+        }
+
+        function playClickSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(520, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.12);
+            } catch (e) {}
+        }
+
+        /* ========================================================
+           ৪. মূল অ্যাপ এবং প্রোডাকশন রেজিস্টার লজিক
+           ======================================================== */
+        const TOTAL_STYLES = 30;
+        const headerRow = document.getElementById('table-header-row');
+        const totalPcsRow = document.getElementById('total-pcs-row');
+        const rateRow = document.getElementById('rate-row');
+        const totalMoneyRow = document.getElementById('total-money-row');
+        const tbody = document.getElementById('table-body');
+        const todayDate = new Date().getDate();
+
+        for (let style = 1; style <= TOTAL_STYLES; style++) {
+            const th = document.createElement('th');
+            th.className = 'style-header-cell';
+            th.innerHTML = `<div class="style-header-wrapper"><span class="style-badge"><i class="fa-solid fa-shirt"></i> S-${style}</span><input type="text" id="st-${style}" class="style-header-input month-save" placeholder="Style ${style}"></div>`;
+            headerRow.appendChild(th);
+
+            const tdPcs = document.createElement('td');
+            tdPcs.id = `col-total-${style}`;
+            tdPcs.className = 'total-col';
+            tdPcs.innerText = '0';
+            totalPcsRow.appendChild(tdPcs);
+
+            const tdRate = document.createElement('td');
+            tdRate.innerHTML = `<input type="number" id="rate-${style}" class="rate-input month-save" placeholder="0.0" step="0.01" oninput="calculateTotals()">`;
+            rateRow.appendChild(tdRate);
+
+            const tdAmount = document.createElement('td');
+            tdAmount.id = `amount-${style}`;
+            tdAmount.className = 'total-col';
+            tdAmount.style.color = '#276749';
+            tdAmount.innerText = '0';
+            totalMoneyRow.appendChild(tdAmount);
+        }
+
+        for (let day = 1; day <= 31; day++) {
+            const tr = document.createElement('tr');
+            if (day === todayDate) tr.classList.add('today-row');
+            
+            let rowHTML = `<td class="date-col">${day}</td>`;
+            for (let style = 1; style <= TOTAL_STYLES; style++) {
+                rowHTML += `<td><input type="number" id="cell-${day}-${style}" class="table-input month-save" placeholder="0" oninput="calculateTotals()"></td>`;
+            }
+            tr.innerHTML = rowHTML;
+            tbody.appendChild(tr);
+        }
+
+        const monthSelect = document.getElementById('user-month');
+        let monthInputs = [];
+        const globalInputs = document.querySelectorAll('.global-save');
+
+        globalInputs.forEach(input => {
+            const saved = localStorage.getItem(input.id);
+            if (saved !== null) input.value = saved;
+            input.addEventListener('input', () => localStorage.setItem(input.id, input.value));
+        });
+
+        function calculateTotals() {
+            let grandPcsSum = 0;
+            let grandMoneySum = 0;
+
+            for (let style = 1; style <= TOTAL_STYLES; style++) {
+                let colSum = 0;
+                for (let day = 1; day <= 31; day++) {
+                    const val = parseFloat(document.getElementById(`cell-${day}-${style}`).value) || 0;
+                    colSum += val;
+                }
+                document.getElementById(`col-total-${style}`).innerText = colSum;
+                grandPcsSum += colSum;
+
+                const rateVal = parseFloat(document.getElementById(`rate-${style}`).value) || 0;
+                const styleTotalAmount = colSum * rateVal;
+                document.getElementById(`amount-${style}`).innerText = styleTotalAmount > 0 ? styleTotalAmount.toFixed(2) : '0';
+                grandMoneySum += styleTotalAmount;
+            }
+
+            const percentVal = parseFloat(document.getElementById('bonus-percent').value) || 0;
+            const bonusAmount = grandMoneySum + (grandMoneySum * (percentVal / 100));
+
+            document.getElementById('grand-total-pcs').innerText = grandPcsSum + " পিস";
+            document.getElementById('grand-total-money').innerText = "৳ " + grandMoneySum.toFixed(2);
+            document.getElementById('grand-total-bonus').innerText = "৳ " + bonusAmount.toFixed(2);
+        }
+
+        function loadMonthData() {
+            monthInputs = document.querySelectorAll('.month-save');
+            const selectedMonth = monthSelect.value;
+            localStorage.setItem('selected-month-setting', selectedMonth);
+
+            monthInputs.forEach(input => {
+                const monthKey = selectedMonth + '_' + input.id;
+                const savedValue = localStorage.getItem(monthKey);
+                input.value = savedValue !== null ? savedValue : '';
+            });
+            calculateTotals();
+        }
+
+        document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('month-save')) {
+                const selectedMonth = monthSelect.value;
+                localStorage.setItem(selectedMonth + '_' + e.target.id, e.target.value);
+            }
+        });
+
+        function enterAppFromSplash() {
+            playClickSound();
+            speakWelcomeMessage(); // অ্যাপে প্রবেশ করার সাথে সাথে ভয়েস দিয়ে স্বাগতম জানাবে
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                checkAntiTheftSecurity();
+            }, 600);
+        }
+
+        function checkAntiTheftSecurity() {
+            const isDeviceUnlocked = localStorage.getItem('device_unlocked_johirul');
+            if (isDeviceUnlocked !== 'true') {
+                document.getElementById('lock-screen').style.display = 'flex';
+            }
+        }
+
+        function checkAntiTheftPin() {
+            const entered = document.getElementById('pin-entry').value;
+            const masterPin = '1342'; 
+            
+            if (entered === masterPin) {
+                playClickSound();
+                localStorage.setItem('device_unlocked_johirul', 'true');
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('pin-entry').value = '';
+            } else {
+                alert('ভুল সিক্রেট পিন কোড!');
+            }
+        }
+
+        function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+
+        function changeTheme(theme) {
+            document.body.className = 'theme-' + theme;
+            localStorage.setItem('selected-theme', theme);
+        }
+
+        const translations = {
+            bn: {
+                settings: "সেটিং", name: "নাম (Name):", id: "আইডি নাম্বার (ID):",
+                section: "সেকশন (Section):", month: "মাসের নাম (Month):", date: "তারিখ", totalPcs: "মোট পিস",
+                rate: "রেট (৳)", totalMoney: "মোট টাকা (৳)", cardPcs: "এই মাসের সর্বমোট প্রোডাকশন:",
+                cardMoney: "এই মাসের সর্বমোট বিল (মূল):", cardBonus: "সর্বমোট প্রাপ্য (+", modalTitle: "সেটিং প্যানেল",
+                lblTheme: "থিম কালার (Theme):", lblLang: "ভাষা (Language):", btnPrint: "প্রিন্ট / PDF সেভ করুন",
+                btnExcel: "এক্সেল ফাইল ডাউনলোড (Excel)", btnReset: "শুধু এই মাসের ডাটা মুছুন"
+            },
+            en: {
+                settings: "Settings", name: "Name:", id: "ID Number:",
+                section: "Section:", month: "Month Name:", date: "Date", totalPcs: "Total Pcs",
+                rate: "Rate ($/৳)", totalMoney: "Total Amount", cardPcs: "Total Monthly Production:",
+                cardMoney: "Total Monthly Bill (Base):", cardBonus: "Grand Total Payable (+", modalTitle: "Settings Panel",
+                lblTheme: "Theme Color:", lblLang: "Language:", btnPrint: "Print / Save PDF",
+                btnExcel: "Export Excel Sheet", btnReset: "Clear Current Month Data"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang];
+            document.getElementById('txt-settings-btn').innerText = t.settings;
+            document.getElementById('lbl-name').innerText = t.name;
+            document.getElementById('lbl-id').innerText = t.id;
+            document.getElementById('lbl-section').innerText = t.section;
+            document.getElementById('lbl-month').innerText = t.month;
+            document.getElementById('lbl-date').innerText = t.date;
+            document.getElementById('lbl-total-pcs').innerText = t.totalPcs;
+            document.getElementById('lbl-rate').innerText = t.rate;
+            document.getElementById('lbl-total-money').innerText = t.totalMoney;
+            document.getElementById('lbl-card-pcs').innerText = t.cardPcs;
+            document.getElementById('lbl-card-money').innerText = t.cardMoney;
+            document.getElementById('lbl-card-bonus').innerText = t.cardBonus;
+            document.getElementById('txt-modal-title').innerHTML = `<i class="fa-solid fa-sliders"></i> ${t.modalTitle}`;
+            document.getElementById('lbl-theme').innerText = t.lblTheme;
+            document.getElementById('lbl-lang').innerText = t.lblLang;
+            document.getElementById('btn-txt-print').innerText = t.btnPrint;
+            document.getElementById('btn-txt-excel').innerText = t.btnExcel;
+            document.getElementById('btn-txt-reset').innerText = t.btnReset;
+
+            localStorage.setItem('selected-language', lang);
+        }
+
+        function exportToExcel() {
+            const table = document.querySelector("table");
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Monthly Register" });
+            const monthName = monthSelect.options[monthSelect.selectedIndex].text;
+            XLSX.writeFile(wb, `Production_Register_${monthName}.xlsx`);
+        }
+
+        function backupData() {
+            const backup = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                backup[key] = localStorage.getItem(key);
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Register_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            dlAnchorElem.click();
+        }
+
+        function restoreData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    Object.keys(data).forEach(key => localStorage.setItem(key, data[key]));
+                    alert('ডাটা সফলভাবে রিস্টোর হয়েছে!');
+                    location.reload();
+                } catch (err) {
+                    alert('ভুল ফাইল নির্বাচন করেছেন!');
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedMonth = localStorage.getItem('selected-month-setting');
+            if (savedMonth) monthSelect.value = savedMonth;
+
+            const savedTheme = localStorage.getItem('selected-theme') || 'blue';
+            document.getElementById('theme-select').value = savedTheme;
+            changeTheme(savedTheme);
+
+            const savedLang = localStorage.getItem('selected-language') || 'bn';
+            document.getElementById('lang-select').value = savedLang;
+            changeLanguage(savedLang);
+
+            loadMonthData();
+        });
+
+        function clearCurrentMonthData() {
+            const monthName = monthSelect.options[monthSelect.selectedIndex].text;
+            if (confirm(`আপনি কি নিশ্চিত যে ${monthName}-এর সব তথ্য ও রেট মুছে ফেলতে চান?`)) {
+                monthInputs.forEach(input => {
+                    localStorage.removeItem(monthSelect.value + '_' + input.id);
+                    input.value = '';
+                });
+                calculateTotals();
+                closeSettings();
+            }
+        }
+    </script>
+</body>
+</html>
